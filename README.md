@@ -1,20 +1,12 @@
-# Cyrus Correll | Project C: Correcting High Confidence False Positive and Duplicate Places in Overture Maps
+# Cyrus Correll | Project C: Developing Locational Confidence Metric for POI's
 
-The purpose of this project is to develop a solution for detecting and correcting HCFP and Duplicate Places in Overture Maps. A high-confidence false-positive Place location is defined as a Place with over 0.75 confidence that is more than 10m from it's "correct" location. This is when the map is confidently wrong. 
+Current Overture confidence metric only measures existential confidence. The addition of a locational confidence metric would allow Overture to further scale with certainty of their locational accuracy. Current plan is to utilize address coordinates and compare it to point-coordinates. Other data, such as land cover, may be utlitized for low-confidence Places. 
 
-Duplicate Place locations are defined as more than one Place locations meant for the same entity. Examples are prevalent in larger entities, such as airports. Many larger entities have multiple names, which leads to excess data and mistakes.
+O1: Create Location Confidence metric for Place values. Ensure highly existence-confident places are also highly location-confident.
+KR1: Generate 10-15k ground truth datapoints. Use address data to ensure places are within 2m of their address.
+KR2: Create model to assign confidence values to places. Create a dataset of 30-50k Places points. Locational confidence relies on relation to address, land cover, and elevation.
+KR3: Use (address & others) data to improve location of places on your accuracy metrics. Ensure >90% accuracy.
+KR4: Scale dataset of Places with locational confidence metric up to 500k Places, across the globe.
 
-O1: Develop a reliable method of detecting high-confidence false-positive duplicate Place locations. 
-KR1: Create an algorithm to detect false positive Place locations. Generate a dataset of 5-10k misplaced locations.
-
-KR2: Create an algorithm to properly distinguish most significant place in the case of duplicates. Optimize algorithm to run efficiently. Utilize Graph Theory and KNN to determine most significant duplicate.
-
-KR3: Create a benchmark to verify accuracy of aforementioned algorithm. Confirm that >95% of dataset is accurately false-positive Places.
-
-O2: Develop a corrective solution to accurately re-assign location coordinates of high-confidence false-positive Place locations. 
-
-KR1: Research potential approaches. Explore 3-5 different methods of correction, articulate pro's-con's of each.
-
-KR2: Implement best corrective method found from KR1. Create a solution with scalability in mind. 
-
-KR3: Run benchmark created in O1-KR3 on corrected data. Ensure that >80% of Places in original dataset are corrected.
+Notes from POC:
+Measure the calibration of that confidence value (logloss, ROC, calibration graph). Additionally could create an aggregated location accuracy metric (based on distance from you ground truth or similar)
