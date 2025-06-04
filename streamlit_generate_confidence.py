@@ -4,6 +4,9 @@ import overturemaps.core
 import pandas
 import geopandas as gpd
 import json # Added for json.dumps
+import numpy as np
+import pydeck as pdk
+from lonboard import Map, PolygonLayer, ScatterplotLayer
 # numpy might be needed if helperfuncs returns specific numpy types that need handling,
 # but st.json is usually robust.
 # import numpy as np
@@ -16,7 +19,7 @@ st.title("Overture Maps Location Confidence Metrics")
 st.sidebar.header("Settings")
 
 # Bounding box input
-default_bbox_str = "-117.05,33,-117,33.05"
+default_bbox_str = "-117.08,33,-117,33.08"
 bbox_str_input = st.sidebar.text_input(
     "Bounding Box (xmin,ymin,xmax,ymax):",
     value=default_bbox_str,
@@ -24,7 +27,7 @@ bbox_str_input = st.sidebar.text_input(
 )
 
 # Fuzzy matching toggle
-use_fuzzy_matching = st.sidebar.checkbox("Use Fuzzy Matching Mode", value=False)
+use_fuzzy_matching = st.sidebar.checkbox("Use Fuzzy Matching Mode", value=True)
 
 # Process button
 process_button = st.sidebar.button("Process Data")
@@ -106,20 +109,77 @@ if process_button:
                  st.warning("Address dictionary is empty, cannot perform fuzzy matching.")
                  st.stop()
             with st.spinner("Finding fuzzy matches and distances..."):
-                p2a_distances, a2p_distances = find_fuzzy_matches_and_distances(places_dict, addr_dict, threshold=80)
-            
-            if not p2a_distances and not a2p_distances:
+                p2a_distances = find_fuzzy_matches_and_distances(places_dict, addr_dict, threshold=80)
+             #Add Map Visualization
+            st.subheader("Map Visualization")
+            pdk_places_data = [
+                {"lon": coord[0], "lat": coord[1]} for coord in places_dataset.geometry.apply(lambda geom: [geom.x, geom.y]).tolist()
+            ]
+            pdk_addresses_data = [
+                {"lon": coord[0], "lat": coord[1]} for coord in address_dataset.geometry.apply(lambda geom: [geom.x, geom.y]).tolist()
+            ]
+            # Create line data for connections between places and matched addresses
+            line_data = []
+            if use_fuzzy_matching and len(p2a_distances) > 0:
+                for place_id, place_data in p2a_distances.items():
+                    print(f"Processing match for place: {place_id}")
+                    if 'place_coord' in place_data and 'matched_address' in place_data:
+                        print(f" - Found matched address: {place_data['matched_address']}")
+                    if 'place_coord' in place_data and 'address_coord' in place_data:
+
+                        line_data.append({
+                            "source_lon": place_data['place_coord'][0],
+                            "source_lat": place_data['place_coord'][1],
+                            "target_lon": place_data['address_coord'][0],
+                            "target_lat": place_data['address_coord'][1]
+                        })
+
+            st.pydeck_chart(
+                pdk.Deck(
+                map_style=None,
+                initial_view_state=pdk.ViewState(
+                latitude= (bbox[1]+bbox[3]) / 2,  # Center latitude
+                longitude=(bbox[0]+bbox[2]) / 2,  # Center longitude
+                zoom=13,
+                pitch=0,
+                ),
+                # Add layers to the map
+                layers=[
+                    pdk.Layer(
+                        "ScatterplotLayer",
+                        data=pdk_places_data,
+                        get_position=["lon", "lat"],
+                        get_radius=5,
+                        get_fill_color=[255, 0, 0, 160],  # Red for places with transparency
+                       
+                ),
+                pdk.Layer(
+                        "ScatterplotLayer",
+                        data=pdk_addresses_data,
+                        get_position=["lon", "lat"],
+                        get_radius=5,
+                        get_fill_color=[0, 0, 255, 160],  # Blue for addresses with transparency
+                        
+                ),
+                pdk.Layer(
+                    "LineLayer",
+                    data=line_data,
+                    get_source_position=["source_lon", "source_lat"],
+                    get_target_position=["target_lon", "target_lat"],
+                    get_color=[255, 255, 255, 160],  # white lines for connections
+                    get_width=2
+                ) if line_data else None
+                ],
+                )
+            )
+
+            if not p2a_distances:
                 st.write("No fuzzy matches found.")
-            elif len(p2a_distances) > len(a2p_distances):
-                st.write(f"Place-to-Address Distances (Count: {len(p2a_distances)}):")
-                st.json(p2a_distances, expanded=False) # Show collapsed by default for large JSON
-                results_to_download = p2a_distances
-                results_filename = "fuzzy_p2a_distances.json"
-            else: # This covers len(a2p_distances) >= len(p2a_distances)
-                st.write(f"Address-to-Place Distances (Count: {len(a2p_distances)}):")
-                st.json(a2p_distances, expanded=False)
-                results_to_download = a2p_distances
-                results_filename = "fuzzy_a2p_distances.json"
+                st.stop()
+            st.write(f"Place-to-Address Distances (Count: {len(p2a_distances)}): (Coverage: {len(p2a_distances) / len(places_dict) * 100:.2f}%)")
+            st.json(p2a_distances, expanded=1) # Show collapsed by default for large JSON
+            results_to_download = p2a_distances
+            results_filename = "fuzzy_p2a_distances.json"
 
         else: # Conventional matching
             st.subheader("Conventional Matching Results")
@@ -129,13 +189,12 @@ if process_button:
             if distances:
                 coverage = (len(distances) / len(places_dict)) * 100 if len(places_dict) > 0 else 0
                 st.write(f"Distances found for {len(distances)} places. Coverage: {coverage:.2f}%")
-                st.json(distances, expanded=False)
+                st.json(distances, expanded=1)
                 results_to_download = distances
                 results_filename = "conventional_distances.json"
             else:
                 st.write("No conventional matches found.")
-        
-        # Add download button if there are results
+         # Add download button if there are results
         if results_to_download:
             json_string = json.dumps(results_to_download, indent=4)
             st.download_button(
@@ -145,6 +204,9 @@ if process_button:
                 mime="application/json"
             )
 
+    
+       
+       
     except ImportError:
         st.error("Failed to import helper functions. Ensure 'helperfuncs.py' is in the same directory and contains the necessary functions.")
     except Exception as e:

@@ -203,30 +203,5 @@ def find_fuzzy_matches_and_distances(places_dict, address_dict, threshold=90):
 
     print(f"Found {len(p2a_distances_fuzzy)} potential matches mapping places to addresses (score >= {threshold}). Capture percentage: {len(p2a_distances_fuzzy) / len(places_dict_upper) * 100:.2f}%")
 
-    print(f"Starting fuzzy matching (case-insensitive) for {len(address_address_keys_upper)} official addresses against {len(place_address_keys_upper)} place addresses...")
-    # Match addresses to places (using uppercase)
-    for address_addr_upper, (address_coord, address_addr_orig) in address_dict_upper.items():
-        # Find the best match in places_dict_upper above the threshold
-        best_match_upper, score, _ = process.extractOne(address_addr_upper, place_address_keys_upper, scorer=fuzz.token_sort_ratio)
 
-        if score >= threshold:
-            matched_place_coord, matched_place_orig = places_dict_upper[best_match_upper]
-            # Check if the reverse match (place -> address) already calculated this pair using original keys
-            if matched_place_orig in p2a_distances_fuzzy and p2a_distances_fuzzy[matched_place_orig]['matched_address'] == address_addr_orig:
-                 # Retrieve distance calculated previously
-                 distance = p2a_distances_fuzzy[matched_place_orig]['distance']
-            else:
-                 # Calculate distance if not found in the p2a results
-                 distance = get_dist(address_coord, matched_place_coord)
-
-            # Store results using original keys
-            a2p_distances_fuzzy[address_addr_orig] = {
-                'matched_place': matched_place_orig,
-                'score': score,
-                'distance': distance,
-                'address_coord': address_coord,
-                'place_coord': matched_place_coord
-            }
-
-    print(f"Found {len(a2p_distances_fuzzy)} potential matches mapping addresses to places (score >= {threshold}). Capture percentage: {len(a2p_distances_fuzzy) / len(address_dict_upper) * 100:.2f}%")
-    return p2a_distances_fuzzy, a2p_distances_fuzzy
+    return p2a_distances_fuzzy
