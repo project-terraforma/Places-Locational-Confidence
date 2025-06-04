@@ -229,4 +229,4 @@ if process_button:
 else:
     st.info("Adjust settings in the sidebar and click 'Process Data' to begin.")
 
-st.write("Made with ❤️ by [Cyrus Correll](https://www.linkedin.com/in/cyruscorrell/) for Overture Maps through CRWN 102. Special thanks to Professor Rao!")
+st.write("Made with ❤️ by [Cyrus Correll](https://www.linkedin.com/in/cyruscorrell/) for Overture Maps through CRWN 102. Special thanks to Professor Rao and Jens Goossens!")
