@@ -127,9 +127,13 @@ if process_button:
             pdk_places_data = [
                 {"lon": coord[0], "lat": coord[1]} for coord in places_dataset.geometry.apply(lambda geom: [geom.x, geom.y]).tolist()
             ]
+            for i in range(len(pdk_places_data)):
+                pdk_places_data[i]["name"] = places_dataset.iloc[i].get("name", "Unknown Place")
             pdk_addresses_data = [
                 {"lon": coord[0], "lat": coord[1]} for coord in address_dataset.geometry.apply(lambda geom: [geom.x, geom.y]).tolist()
             ]
+            for i in range(len(pdk_addresses_data)):
+                pdk_addresses_data[i]["name"] = address_dataset.iloc[i].get("name", "Unknown Address")
             # Create line data for connections between places and matched addresses
             line_data = []
             if use_fuzzy_matching and len(p2a_distances) > 0:
@@ -149,11 +153,14 @@ if process_button:
             st.pydeck_chart(
                 pdk.Deck(
                 map_style=None,
+                tooltip={
+                    "text": "{name}\nCoordinates: [{lon}, {lat}]"
+                },
                 initial_view_state=pdk.ViewState(
-                latitude= (bbox[1]+bbox[3]) / 2,  # Center latitude
-                longitude=(bbox[0]+bbox[2]) / 2,  # Center longitude
-                zoom=13,
-                pitch=0,
+                    latitude= (bbox[1]+bbox[3]) / 2,  # Center latitude
+                    longitude=(bbox[0]+bbox[2]) / 2,  # Center longitude
+                    zoom=13,
+                    pitch=0,
                 ),
                 # Add layers to the map
                 layers=[
@@ -182,7 +189,7 @@ if process_button:
                     get_width=2
                 ) if line_data else None
                 ],
-                )
+                ), selection_mode="multi-object",
             )
 
             if not p2a_distances:
