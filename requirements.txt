@@ -3,3 +3,6 @@ overturemaps
 pandas
 geopandas
 json
+numpy
+pydeck
+lonboard
