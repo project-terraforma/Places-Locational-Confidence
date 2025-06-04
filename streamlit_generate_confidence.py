@@ -123,7 +123,7 @@ if process_button:
             with st.spinner("Finding fuzzy matches and distances..."):
                 p2a_distances = find_fuzzy_matches_and_distances(places_dict, addr_dict, threshold=80)
              #Add Map Visualization
-            st.subheader("Map Visualization")
+            st.subheader("Map Visualization | Places (Red) and Addresses (Blue)")
             pdk_places_data = [
                 {"lon": coord[0], "lat": coord[1]} for coord in places_dataset.geometry.apply(lambda geom: [geom.x, geom.y]).tolist()
             ]
