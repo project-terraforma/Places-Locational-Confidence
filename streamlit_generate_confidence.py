@@ -150,7 +150,7 @@ if process_button:
                             "target_lat": place_data['address_coord'][1]
                         })
 
-            st.pydeck_chart(
+            event = st.pydeck_chart(
                 pdk.Deck(
                 map_style=None,
                 tooltip={
@@ -189,9 +189,9 @@ if process_button:
                     get_width=2
                 ) if line_data else None
                 ],
-                ), selection_mode="multi-object",
+                ), selection_mode="multi-object", on_select="rerun"
             )
-
+            event.selection
             if not p2a_distances:
                 st.write("No fuzzy matches found.")
                 st.stop()
