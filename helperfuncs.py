@@ -193,7 +193,7 @@ def find_fuzzy_matches_and_distances(places_dict, address_dict, threshold=90):
                 distance_score = f'{distance_score:.2f}'  # Format to 2 decimal places
             p2a_distances_fuzzy[place_addr_orig] = {
                 'matched_address': matched_addr_orig,
-                'name_match_score': score,
+                'name_match_score': f'{score:.2f}',
                 'distance': distance,
                 'distance_score': distance_score,
                 'place_coord': place_coord,
