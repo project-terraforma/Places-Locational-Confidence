@@ -125,15 +125,19 @@ if process_button:
              #Add Map Visualization
             st.subheader("Map Visualization | Places (Red) and Addresses (Blue)")
             pdk_places_data = [
-                {"lon": coord[0], "lat": coord[1]} for coord in places_dataset.geometry.apply(lambda geom: [geom.x, geom.y]).tolist()
+                {"lon": coord[0], "lat": coord[1], "name": str(places_dataset.addresses.iloc[i][0]['freeform'])} for i, coord in enumerate(places_dataset.geometry.apply(lambda geom: [geom.x, geom.y]).tolist())
             ]
-            for i in range(len(pdk_places_data)):
-                pdk_places_data[i]["name"] = places_dataset.iloc[i].get("name", "Unknown Place")
+            # for i in range(len(pdk_places_data)):
+            #     if places_dataset.addresses.iloc[i] is None:
+            #         pdk_places_data[i]["name"] = "Unknown Place"
+            #     pdk_places_data[i]["name"] = places_dataset.addresses.iloc[i]
             pdk_addresses_data = [
-                {"lon": coord[0], "lat": coord[1]} for coord in address_dataset.geometry.apply(lambda geom: [geom.x, geom.y]).tolist()
+                {"lon": coord[0], "lat": coord[1], "name": str(address_dataset.number.iloc[i]) + " " + str(address_dataset.street.iloc[i])} for i, coord in enumerate(address_dataset.geometry.apply(lambda geom: [geom.x, geom.y]).tolist())
             ]
-            for i in range(len(pdk_addresses_data)):
-                pdk_addresses_data[i]["name"] = address_dataset.iloc[i].get("name", "Unknown Address")
+            # for i in range(len(pdk_addresses_data)):
+            #     if address_dataset.number.iloc[i] is None or address_dataset.street.iloc[i] is None:
+            #         pdk_addresses_data[i]["name"] = "Unknown Address"
+            #     pdk_addresses_data[i]["name"] = str(address_dataset.number.iloc[i]) + " " + str(address_dataset.street.iloc[i])
             # Create line data for connections between places and matched addresses
             line_data = []
             if use_fuzzy_matching and len(p2a_distances) > 0:
@@ -153,9 +157,6 @@ if process_button:
             event = st.pydeck_chart(
                 pdk.Deck(
                 map_style=None,
-                tooltip={
-                    "text": "{name}\nCoordinates: [{lon}, {lat}]"
-                },
                 initial_view_state=pdk.ViewState(
                     latitude= (bbox[1]+bbox[3]) / 2,  # Center latitude
                     longitude=(bbox[0]+bbox[2]) / 2,  # Center longitude
@@ -190,8 +191,10 @@ if process_button:
                     get_color=[255, 255, 255, 160],  # white lines for connections
                     get_width=2
                 ) if line_data else None
-                ],
-                ), selection_mode="multi-object", on_select="rerun"
+                ], tooltip={
+                    "text": "{name}\nCoordinates: [{lon}, {lat}]"
+                },
+                ), selection_mode="multi-object"
             )
             event.selection
             if not p2a_distances:
