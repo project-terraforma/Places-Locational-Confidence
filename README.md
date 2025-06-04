@@ -1,6 +1,6 @@
 # Cyrus Correll | Project C: Developing Locational Confidence Metric for POI's
 
-Check out streamlit website here: `https://places-locational-confidence-metric.streamlit.app/`
+Check out streamlit website here: [`https://places-locational-confidence-metric.streamlit.app/`](https://places-locational-confidence-metric.streamlit.app/)
 
 
 Current Overture confidence metric only measures existential confidence. The addition of a locational confidence metric would allow Overture to further scale with certainty of their locational accuracy. Current plan is to utilize address coordinates and compare it to point-coordinates. Other data, such as land cover, may be utlitized for low-confidence Places. 
