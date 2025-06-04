@@ -194,15 +194,15 @@ if process_button:
                 results_filename = "conventional_distances.json"
             else:
                 st.write("No conventional matches found.")
-         # Add download button if there are results
-        if results_to_download:
-            json_string = json.dumps(results_to_download, indent=4)
-            st.download_button(
-                label="Download Results as JSON",
-                data=json_string,
-                file_name=results_filename,
-                mime="application/json"
-            )
+        #  # Add download button if there are results
+        # if results_to_download:
+        #     json_string = json.dumps(results_to_download, indent=4)
+        #     st.download_button(
+        #         label="Download Results as JSON",
+        #         data=json_string,
+        #         file_name=results_filename,
+        #         mime="application/json"
+        #     )
 
     
        
