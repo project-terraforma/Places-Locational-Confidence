@@ -33,7 +33,16 @@ use_fuzzy_matching = st.sidebar.checkbox("Use Fuzzy Matching Mode", value=True)
 process_button = st.sidebar.button("Process Data")
 
 # --- Main Application Logic ---
+st.markdown("""
+**Welcome to the Overture Maps Location Confidence Metrics App!**
+
+This app allows you to analyze and visualize location data within a specified bounding box.
+Under the hood, it uses fuzzy string matching to match Overture POI's with their official address, and determining locational confidence from that distance.
+
+For now, please use fuzzy matching mode (it's much better than conventional methods!).
+""")
 if process_button:
+    st.header("Processing Data...")
     bbox = None
     results_to_download = None # Initialize variable to store results for download
     results_filename = "results.json" # Default filename
@@ -64,9 +73,10 @@ if process_button:
     try:
         # Load places data
         with st.spinner("Loading places data..."):
-            places_dataset = overturemaps.core.geodataframe("place", bbox=bbox)
-        st.write(f'Found {len(places_dataset)} places in the bounding box.')
+            places_dataset = overturemaps.core.geodataframe("place", bbox=bbox) 
         if not places_dataset.empty:
+            st.success("Places Data Loaded Successfully", icon="✅")
+            st.write(f'Found {len(places_dataset)} places in the bounding box.')
             st.caption("Sample Places Data:")
             st.dataframe(places_dataset.head())
         elif len(places_dataset) == 0:
@@ -76,6 +86,8 @@ if process_button:
         # Load address data
         with st.spinner("Loading address data..."):
             address_dataset = overturemaps.core.geodataframe("address", bbox=bbox)
+        
+        st.success("Address Data Loaded Successfully", icon="✅")
         st.write(f'Found {len(address_dataset)} addresses in the bounding box.')
         if not address_dataset.empty:
             st.caption("Sample Address Data:")
@@ -180,7 +192,7 @@ if process_button:
             st.json(p2a_distances, expanded=1) # Show collapsed by default for large JSON
             results_to_download = p2a_distances
             results_filename = "fuzzy_p2a_distances.json"
-
+            st.balloons()
         else: # Conventional matching
             st.subheader("Conventional Matching Results")
             with st.spinner("Comparing place and address data (conventional)..."):
@@ -217,3 +229,4 @@ if process_button:
 else:
     st.info("Adjust settings in the sidebar and click 'Process Data' to begin.")
 
+st.write("Made with ❤️ by [Cyrus Correll](https://www.linkedin.com/in/cyruscorrell/) for Overture Maps through CRWN 102. Special thanks to Professor Rao!")
