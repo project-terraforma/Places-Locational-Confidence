@@ -1,7 +1,7 @@
 import streamlit as st
 from helperfuncs import dataframes_to_dicts, find_fuzzy_matches_and_distances, compare_number_and_first
 import overturemaps.core
-import pandas
+import pandas as pd
 import geopandas as gpd
 #import json # Added for json.dumps
 import numpy as np
@@ -151,7 +151,7 @@ if process_button:
                             "source_lon": place_data['place_coord'][0],
                             "source_lat": place_data['place_coord'][1],
                             "target_lon": place_data['address_coord'][0],
-                            "target_lat": place_data['address_coord'][1]
+                            "target_lat": place_data['address_coord'][1],
                         })
 
             event = st.pydeck_chart(
@@ -201,6 +201,20 @@ if process_button:
                 st.write("No fuzzy matches found.")
                 st.stop()
             st.write(f"Place-to-Address Distances (Count: {len(p2a_distances)}): (Coverage: {len(p2a_distances) / len(places_dict) * 100:.2f}%)")
+            # Calculate statistics for the table
+            distances = [float(data['distance'].replace('m', '')) for data in p2a_distances.values()]
+            distance_scores = [float(data['distance_score']) for data in p2a_distances.values()]
+            matched_scores = [float(data['name_match_score']) for data in p2a_distances.values()]
+
+            # Create statistics table
+            stats_df = pd.DataFrame({
+                'Distance (m)': [np.min(distances), np.mean(distances), np.max(distances)],
+                'Distance Score': [np.min(distance_scores), np.mean(distance_scores), np.max(distance_scores)],
+                'Matched Score': [np.min(matched_scores), np.mean(matched_scores), np.max(matched_scores)]
+            }, index=['Min', 'Average', 'Max'])
+
+            st.subheader("Summary Statistics")
+            st.dataframe(stats_df.round(2))
             st.json(p2a_distances, expanded=1) # Show collapsed by default for large JSON
             results_to_download = p2a_distances
             results_filename = "fuzzy_p2a_distances.json"
