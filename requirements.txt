@@ -6,3 +6,5 @@ numpy
 pydeck
 lonboard
 tqdm
+shapely
+rapidfuzz
