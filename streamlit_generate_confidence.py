@@ -219,6 +219,8 @@ if process_button:
             results_to_download = p2a_distances
             results_filename = "fuzzy_p2a_distances.json"
             st.balloons()
+            st.balloons()
+            st.balloons()
         else: # Conventional matching
             st.subheader("Conventional Matching Results")
             with st.spinner("Comparing place and address data (conventional)..."):
