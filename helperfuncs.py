@@ -189,7 +189,7 @@ def find_fuzzy_matches_and_distances(places_dict, address_dict, threshold=90):
                 # Use logarithmic scale for smooth decay between 3m and 200m
                 # log(distance/5) / log(200/5) gives 0 at 5m and 1 at 200m
                 # Subtract from 1 to invert (1 at 5m, 0 at 200m)
-                distance_score = 1 - (np.log(distance_meters / MIN_DISTANCE) / np.log(200 / MIN_DISTANCE))
+                distance_score = np.min((1 - (np.log(distance_meters / MIN_DISTANCE) / np.log(200 / MIN_DISTANCE)))*1.1,1)
                 distance_score = f'{distance_score:.2f}'  # Format to 2 decimal places
             p2a_distances_fuzzy[place_addr_orig] = {
                 'matched_address': matched_addr_orig,
