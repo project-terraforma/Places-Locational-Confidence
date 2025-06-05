@@ -19,7 +19,7 @@ st.title("Overture Maps Location Confidence Metrics")
 st.sidebar.header("Settings")
 
 # Bounding box input
-default_bbox_str = "-117.08,33,-117,33.08"
+default_bbox_str = " -122.07097184198727, 36.92905573190209, -121.9761711508025, 37.018639643476284"
 bbox_str_input = st.sidebar.text_input(
     "Bounding Box (xmin,ymin,xmax,ymax):",
     value=default_bbox_str,
