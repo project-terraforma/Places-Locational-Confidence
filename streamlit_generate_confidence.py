@@ -170,7 +170,7 @@ if process_button:
                         data=pdk_places_data,
                         get_position=["lon", "lat"],
                         get_radius=5,
-                        get_fill_color=[255, 0, 0, 160],  # Red for places with transparency
+                        get_fill_color=[171, 7, 29, 160],  # Red for places with transparency
                         pickable=True,  # Enable picking for interaction 
                         auto_highlight=True,  # Highlight on hover
                 ),
@@ -179,7 +179,7 @@ if process_button:
                         data=pdk_addresses_data,
                         get_position=["lon", "lat"],
                         get_radius=5,
-                        get_fill_color=[0, 0, 255, 160],  # Blue for addresses with transparency
+                        get_fill_color=[52, 122, 235, 160],  # Blue for addresses with transparency
                         pickable=True,  # Enable picking for interaction
                         auto_highlight=True,  # Highlight on hover
                 ),
